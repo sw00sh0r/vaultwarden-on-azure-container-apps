@@ -18,4 +18,4 @@ or click this button:
 The bicep file is pre-configured to use a personal gmail account as smtp provider. In order to make the smtp authentication work the gmail account must have set a [less secure app password](https://support.google.com/accounts/answer/185833?hl=en).
 
 ## Admin token
-Most secure way is to generate an argon2 hash as admin password for the `/admin` site of vaultwarden server. The hash can be generated via './vaultwarden hash` command inside the vaultwarden container.
+Most secure way is to generate an argon2 hash as admin password for the `/admin` site of vaultwarden server. The hash can be generated via `./vaultwarden hash` command inside the vaultwarden container.
