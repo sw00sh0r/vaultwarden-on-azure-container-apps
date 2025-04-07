@@ -151,7 +151,7 @@
       },
       "dependsOn": [
         "[resourceId('Microsoft.OperationalInsights/workspaces', 'log-vaultwarden')]",
-        "[resourceId('Microsoft.Network/virtualNetworks', 'log-vaultwarden')]"
+        "[resourceId('Microsoft.Network/virtualNetworks', 'vnet-vaultwarden')]"
       ]
     },
     {
@@ -178,12 +178,12 @@
       "name": "ca-vaultwarden",
       "location": "[parameters('location')]",
       "properties": {
-        "environmentId": "[resourceId('Microsoft.App/managedEnvironments', container-app-environment)]",
+        "environmentId": "[resourceId('Microsoft.App/managedEnvironments', 'container-app-environment')]",
         "configuration": {
           "secrets": [
             {
               "name": "fileshare-connectionstring",
-              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', sthellyvaultwarden, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', sthellyvaultwarden), '2023-01-01').keys[0].value)]"
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', 'sthellyvaultwarden', environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', 'sthellyvaultwarden'), '2023-01-01').keys[0].value)]"
             },
             {
               "name": "admintoken",
