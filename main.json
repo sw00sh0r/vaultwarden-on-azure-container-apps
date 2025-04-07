@@ -9,29 +9,16 @@
     }
   },
   "parameters": {
-    "location": {
-      "type": "string",
-      "defaultValue": "germanywestcentral",
-      "metadata": {
-        "description": "The Azure region to install it"
-      }
-    },
-    "baseName": {
-      "type": "string",
-      "metadata": {
-        "description": "Base name for all resources"
-      }
-    },
     "adminToken": {
       "type": "securestring",
       "metadata": {
         "description": "The password to access the /admin page of the Vaultwarden installation"
       }
     },
-    "sendgridSmtpPassword": {
+    "gmailLessSecureAppPassword ": {
       "type": "securestring",
       "metadata": {
-        "description": "If you are using sendgrid as a mail provider, set this to your API Key. If you are using another mail provider you have to customize the template."
+        "description": "Set less secure app password to use personal gmail account as smtp provider."
       }
     },
     "enableVnetIntegrationWithAdditionalCosts": {
@@ -40,14 +27,20 @@
       "metadata": {
         "description": "Enable VNet integration. NOTE: This will create additional components which produces additional costs."
       }
-    }
+    },
+    "username": {
+      "type": "string",
+      "metadata": {
+        "description": "Username of personal gmail account. Will also be used as adress from which mail will be sent"
+      }
+    },
   },
   "resources": [
     {
       "condition": "[parameters('enableVnetIntegrationWithAdditionalCosts')]",
       "type": "Microsoft.Network/virtualNetworks",
       "apiVersion": "2023-05-01",
-      "name": "[format('vnet{0}', parameters('baseName'))]",
+      "name": "vnet-vaultwarden",
       "location": "[parameters('location')]",
       "properties": {
         "addressSpace": {
@@ -76,7 +69,7 @@
     {
       "type": "Microsoft.OperationalInsights/workspaces",
       "apiVersion": "2022-10-01",
-      "name": "[format('law{0}', parameters('baseName'))]",
+      "name": "log-vaultwarden",
       "location": "[parameters('location')]",
       "properties": {
         "sku": {
@@ -96,7 +89,7 @@
     {
       "type": "Microsoft.Storage/storageAccounts",
       "apiVersion": "2023-01-01",
-      "name": "[format('stgvaultwarden{0}', parameters('baseName'))]",
+      "name": "sthellyvaultwarden",
       "location": "[parameters('location')]",
       "kind": "StorageV2",
       "sku": {
@@ -111,86 +104,86 @@
         "networkAcls": {
           "defaultAction": "[if(parameters('enableVnetIntegrationWithAdditionalCosts'), 'Deny', 'Allow')]",
           "bypass": "AzureServices",
-          "virtualNetworkRules": "[if(parameters('enableVnetIntegrationWithAdditionalCosts'), createArray(createObject('id', format('{0}/subnets/default', resourceId('Microsoft.Network/virtualNetworks', format('vnet{0}', parameters('baseName')))), 'action', 'Allow')), null())]"
+          "virtualNetworkRules": "[if(parameters('enableVnetIntegrationWithAdditionalCosts'), createArray(createObject('id', format('{0}/subnets/default', resourceId('Microsoft.Network/virtualNetworks', 'vnet-vaultwarden')), 'action', 'Allow')), null())]"
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Network/virtualNetworks', format('vnet{0}', parameters('baseName')))]"
+        "[resourceId('Microsoft.Network/virtualNetworks', 'vnet-vaultwarden')]"
       ]
     },
     {
       "type": "Microsoft.Storage/storageAccounts/fileServices",
       "apiVersion": "2023-01-01",
-      "name": "[format('{0}/{1}', format('stgvaultwarden{0}', parameters('baseName')), 'default')]",
+      "name": "[format('{0}/{1}', 'sthellyvaultwarden', 'default')]",
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName')))]"
+        "[resourceId('Microsoft.Storage/storageAccounts', 'sthellyvaultwarden')]"
       ]
     },
     {
       "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
       "apiVersion": "2023-01-01",
-      "name": "[format('{0}/{1}/{2}', format('stgvaultwarden{0}', parameters('baseName')), 'default', 'vaultwarden')]",
+      "name": "[format('{0}/{1}/{2}', 'sthellyvaultwarden', 'default', 'vaultwarden')]",
       "properties": {
         "enabledProtocols": "SMB",
         "shareQuota": 1024
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/fileServices', format('stgvaultwarden{0}', parameters('baseName')), 'default')]"
+        "[resourceId('Microsoft.Storage/storageAccounts/fileServices', 'sthellyvaultwarden', 'default')]"
       ]
     },
     {
       "type": "Microsoft.App/managedEnvironments",
       "apiVersion": "2023-05-01",
-      "name": "[format('managedenv-{0}-vaultwarden', parameters('baseName'))]",
+      "name": "container-app-environment",
       "location": "[parameters('location')]",
       "properties": {
         "vnetConfiguration": {
           "internal": false,
-          "infrastructureSubnetId": "[if(parameters('enableVnetIntegrationWithAdditionalCosts'), reference(resourceId('Microsoft.Network/virtualNetworks', format('vnet{0}', parameters('baseName'))), '2023-05-01').subnets[0].id, null())]"
+          "infrastructureSubnetId": "[if(parameters('enableVnetIntegrationWithAdditionalCosts'), reference(resourceId('Microsoft.Network/virtualNetworks', 'sthellyvaultwarden'), '2023-05-01').subnets[0].id, null())]"
         },
         "appLogsConfiguration": {
           "destination": "log-analytics",
           "logAnalyticsConfiguration": {
-            "customerId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', format('law{0}', parameters('baseName'))), '2022-10-01').customerId]",
-            "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', format('law{0}', parameters('baseName'))), '2022-10-01').primarySharedKey]"
+            "customerId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', 'log-vaultwarden'), '2022-10-01').customerId]",
+            "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', 'log-vaultwarden'), '2022-10-01').primarySharedKey]"
           }
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.OperationalInsights/workspaces', format('law{0}', parameters('baseName')))]",
-        "[resourceId('Microsoft.Network/virtualNetworks', format('vnet{0}', parameters('baseName')))]"
+        "[resourceId('Microsoft.OperationalInsights/workspaces', 'log-vaultwarden')]",
+        "[resourceId('Microsoft.Network/virtualNetworks', 'log-vaultwarden')]"
       ]
     },
     {
       "type": "Microsoft.App/managedEnvironments/storages",
       "apiVersion": "2023-05-01",
-      "name": "[format('{0}/{1}', format('managedenv-{0}-vaultwarden', parameters('baseName')), 'vaultwarden')]",
+      "name": "[format('{0}/{1}', 'container-app-environment', 'vaultwarden')]",
       "properties": {
         "azureFile": {
           "accessMode": "ReadWrite",
           "shareName": "vaultwarden",
-          "accountName": "[format('stgvaultwarden{0}', parameters('baseName'))]",
-          "accountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName'))), '2023-01-01').keys[0].value]"
+          "accountName": "sthellyvaultwarden",
+          "accountKey": "[listKeys(resourceId('Microsoft.Storage/storageAccounts', 'sthellyvaultwarden'), '2023-01-01').keys[0].value]"
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', format('stgvaultwarden{0}', parameters('baseName')), 'default', 'vaultwarden')]",
-        "[resourceId('Microsoft.App/managedEnvironments', format('managedenv-{0}-vaultwarden', parameters('baseName')))]",
-        "[resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName')))]"
+        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', 'sthellyvaultwarden', 'default', 'vaultwarden')]",
+        "[resourceId('Microsoft.App/managedEnvironments', 'container-app-environment')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', 'sthellyvaultwarden')]"
       ]
     },
     {
       "type": "Microsoft.App/containerApps",
       "apiVersion": "2023-05-01",
-      "name": "[format('vaultwarden{0}', parameters('baseName'))]",
+      "name": "ca-vaultwarden",
       "location": "[parameters('location')]",
       "properties": {
-        "environmentId": "[resourceId('Microsoft.App/managedEnvironments', format('managedenv-{0}-vaultwarden', parameters('baseName')))]",
+        "environmentId": "[resourceId('Microsoft.App/managedEnvironments', container-app-environment)]",
         "configuration": {
           "secrets": [
             {
               "name": "fileshare-connectionstring",
-              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', format('stgvaultwarden{0}', parameters('baseName')), environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName'))), '2023-01-01').keys[0].value)]"
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', sthellyvaultwarden, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', sthellyvaultwarden), '2023-01-01').keys[0].value)]"
             },
             {
               "name": "admintoken",
@@ -296,10 +289,10 @@
         }
       },
       "dependsOn": [
-        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', format('stgvaultwarden{0}', parameters('baseName')), 'default', 'vaultwarden')]",
-        "[resourceId('Microsoft.App/managedEnvironments', format('managedenv-{0}-vaultwarden', parameters('baseName')))]",
-        "[resourceId('Microsoft.App/managedEnvironments/storages', format('managedenv-{0}-vaultwarden', parameters('baseName')), 'vaultwarden')]",
-        "[resourceId('Microsoft.Storage/storageAccounts', format('stgvaultwarden{0}', parameters('baseName')))]"
+        "[resourceId('Microsoft.Storage/storageAccounts/fileServices/shares', 'sthellyvaultwarden', 'default', 'vaultwarden')]",
+        "[resourceId('Microsoft.App/managedEnvironments', 'container-app-environment')]",
+        "[resourceId('Microsoft.App/managedEnvironments/storages', 'container-app-environment', 'vaultwarden')]",
+        "[resourceId('Microsoft.Storage/storageAccounts', 'sthellyvaultwarden')]"
       ]
     }
   ]
