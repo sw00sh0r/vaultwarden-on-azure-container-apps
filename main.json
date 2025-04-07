@@ -22,7 +22,7 @@
         "description": "The password to access the /admin page of the Vaultwarden installation"
       }
     },
-    "gmailLessSecureAppPassword ": {
+    "gmailAppPassword ": {
       "type": "securestring",
       "metadata": {
         "description": "Set less secure app password to use personal gmail account as smtp provider."
@@ -197,8 +197,8 @@
               "value": "[parameters('adminToken')]"
             },
             {
-              "name": "gmaillesssecureapppassword",
-              "value": "[parameters('gmailLessSecureAppPassword')]"
+              "name": "gmailapppassword",
+              "value": "[parameters('gmailAppPassword')]"
             },
             {
               "name": "username",
@@ -263,7 +263,7 @@
                 },
                 {
                   "name": "SMTP_PASSWORD",
-                  "secretRef": "gmaillesssecureapppassword"
+                  "secretRef": "gmailapppassword"
                 },
                 {
                   "name": "SMTP_AUTH_MECHANISM",
