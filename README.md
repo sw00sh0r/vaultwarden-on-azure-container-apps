@@ -11,3 +11,11 @@ To run this template you can execute:
 or click this button:
 
 [![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fmwiedemeyer%2Fvaultwarden-on-azure-container-apps%2Fmain%2Fmain.json)
+
+# Configuration
+
+## SMTP
+The bicep file is pre-configured to use a personal gmail account as smtp provider. In order to make the smtp authentication work the gmail account must have set a [less secure app password](https://support.google.com/accounts/answer/185833?hl=en).
+
+## Admin token
+Most secure way is to generate an argon2 hash as admin password for the `/admin` site of vaultwarden server. The hash can be generated via './vaultwarden hash` command inside the vaultwarden container.
