@@ -22,7 +22,7 @@
         "description": "The password to access the /admin page of the Vaultwarden installation"
       }
     },
-    "gmailAppPassword ": {
+    "gmailAppPassword": {
       "type": "securestring",
       "metadata": {
         "description": "Set less secure app password to use personal gmail account as smtp provider."
