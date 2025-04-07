@@ -1,23 +1,20 @@
-@description('The Azure region to install it')
-param location string = 'germanywestcentral'
-
-@description('Base name for all resources')
-param baseName string
-
 @description('The password to access the /admin page of the Vaultwarden installation')
 @secure()
 param adminToken string
 
-@description('If you are using sendgrid as a mail provider, set this to your API Key. If you are using another mail provider you have to customize the template.')
+@description('In personal gmail account set less app password to use personal gmail account as smtp provider')
 @secure()
-param sendgridSmtpPassword string
+param gmaillesssecureapppassword string
+
+@description('Username of personal gmail account. Will also be used as adress from which mail will be sent')
+param username string
 
 @description('Enable VNet integration. NOTE: This will create additional components which produces additional costs.')
 param enableVnetIntegrationWithAdditionalCosts bool = true
 
 resource vnet 'Microsoft.Network/virtualNetworks@2023-05-01' = if (enableVnetIntegrationWithAdditionalCosts) {
-  name: 'vnet${baseName}'
-  location: location
+  name: 'vnet-vaultwarden'
+  location: 'westeurope'
   properties: {
     addressSpace: {
       addressPrefixes: [
@@ -45,7 +42,7 @@ resource vnet 'Microsoft.Network/virtualNetworks@2023-05-01' = if (enableVnetInt
 
 resource logworkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
   #disable-next-line BCP334
-  name: 'law${baseName}'
+  name: 'log-vaultwarden'
   location: location
   properties: {
     sku: {
@@ -64,7 +61,7 @@ resource logworkspace 'Microsoft.OperationalInsights/workspaces@2022-10-01' = {
 }
 
 resource storage 'Microsoft.Storage/storageAccounts@2023-01-01' = {
-  name: 'stgvaultwarden${baseName}'
+  name: 'sthellyvaultwarden'
   location: location
   kind: 'StorageV2'
   sku: {
@@ -104,7 +101,7 @@ resource fileshare 'Microsoft.Storage/storageAccounts/fileServices/shares@2023-0
 }
 
 resource managedEnv 'Microsoft.App/managedEnvironments@2023-05-01' = {
-  name: 'managedenv-${baseName}-vaultwarden'
+  name: 'container-app-environment'
   location: location
   properties: {
     vnetConfiguration: {
@@ -135,7 +132,7 @@ resource managedEnvStorage 'Microsoft.App/managedEnvironments/storages@2023-05-0
 }
 
 resource vaultwardenapp 'Microsoft.App/containerApps@2023-05-01' = {
-  name: 'vaultwarden${baseName}'
+  name: 'ca-vaultwarden'
   location: location
   properties: {
     environmentId: managedEnv.id
@@ -150,8 +147,12 @@ resource vaultwardenapp 'Microsoft.App/containerApps@2023-05-01' = {
           value: adminToken
         }
         {
-          name: 'sendgridsmtppassword'
-          value: sendgridSmtpPassword
+          name: 'gmaillesssecureapppassword'
+          value: gmaillesssecureapppassword
+        }
+        {
+          name: 'username'
+          value: username
         }
       ]
       activeRevisionsMode: 'Single'
@@ -193,11 +194,11 @@ resource vaultwardenapp 'Microsoft.App/containerApps@2023-05-01' = {
             }
             {
               name: 'SMTP_HOST'
-              value: 'smtp.sendgrid.net'
+              value: 'smtp.gmail.com'
             }
             {
               name: 'SMTP_FROM'
-              value: 'noreply@yourdomain.com'
+              value: 'username'
             }
             {
               name: 'SMTP_PORT'
@@ -209,11 +210,11 @@ resource vaultwardenapp 'Microsoft.App/containerApps@2023-05-01' = {
             }
             {
               name: 'SMTP_USERNAME'
-              value: 'apikey'
+              value: 'username'
             }
             {
               name: 'SMTP_PASSWORD'
-              secretRef: 'sendgridsmtppassword'
+              secretRef: 'gmaillesssecureapppassword'
             }
             {
               name: 'SMTP_AUTH_MECHANISM'
