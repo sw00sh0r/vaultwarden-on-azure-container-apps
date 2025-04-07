@@ -4,10 +4,10 @@ param adminToken string
 
 @description('In personal gmail account set less app password to use personal gmail account as smtp provider')
 @secure()
-param gmaillesssecureapppassword string
+param gmailLessSecureAppPassword string
 
 @description('Username of personal gmail account. Will also be used as adress from which mail will be sent')
-param username string
+param userName string
 
 @description('Enable VNet integration. NOTE: This will create additional components which produces additional costs.')
 param enableVnetIntegrationWithAdditionalCosts bool = true
@@ -148,11 +148,11 @@ resource vaultwardenapp 'Microsoft.App/containerApps@2023-05-01' = {
         }
         {
           name: 'gmaillesssecureapppassword'
-          value: gmaillesssecureapppassword
+          value: gmailLessSecureAppPassword
         }
         {
           name: 'username'
-          value: username
+          value: userName
         }
       ]
       activeRevisionsMode: 'Single'
