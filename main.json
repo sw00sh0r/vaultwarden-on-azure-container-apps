@@ -33,7 +33,7 @@
       "metadata": {
         "description": "Username of personal gmail account. Will also be used as adress from which mail will be sent"
       }
-    },
+    }
   },
   "resources": [
     {
