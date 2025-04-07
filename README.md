@@ -10,7 +10,7 @@ To run this template you can execute:
 
 or click this button:
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%sw00sh0r%2Fvaultwarden-on-azure-container-apps%2Fmain%2Fmain.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fsw00sh0r%2Fvaultwarden-on-azure-container-apps%2Frefs%2Fheads%2Fmain%2Fmain.json)
 
 # Configuration
 
