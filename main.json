@@ -28,7 +28,7 @@
         "description": "Enable VNet integration. NOTE: This will create additional components which produces additional costs."
       }
     },
-    "username": {
+    "userName": {
       "type": "string",
       "metadata": {
         "description": "Username of personal gmail account. Will also be used as adress from which mail will be sent"
@@ -190,8 +190,12 @@
               "value": "[parameters('adminToken')]"
             },
             {
-              "name": "sendgridsmtppassword",
-              "value": "[parameters('sendgridSmtpPassword')]"
+              "name": "gmaillesssecureapppassword",
+              "value": "[parameters('gmailLessSecureAppPassword')]"
+            },
+            {
+              "name": "username",
+              "value": "[parameters('userName')]"
             }
           ],
           "activeRevisionsMode": "Single",
@@ -232,11 +236,11 @@
                 },
                 {
                   "name": "SMTP_HOST",
-                  "value": "smtp.sendgrid.net"
+                  "value": "smtp.gmail.com"
                 },
                 {
                   "name": "SMTP_FROM",
-                  "value": "noreply@yourdomain.com"
+                  "value": "username"
                 },
                 {
                   "name": "SMTP_PORT",
@@ -248,11 +252,11 @@
                 },
                 {
                   "name": "SMTP_USERNAME",
-                  "value": "apikey"
+                  "value": "username"
                 },
                 {
                   "name": "SMTP_PASSWORD",
-                  "secretRef": "sendgridsmtppassword"
+                  "secretRef": "gmaillesssecureapppassword"
                 },
                 {
                   "name": "SMTP_AUTH_MECHANISM",
