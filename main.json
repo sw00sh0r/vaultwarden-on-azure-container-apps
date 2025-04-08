@@ -234,6 +234,30 @@
                   "secretRef": "fileshare-connectionstring"
                 },
                 {
+                  "name": "IP_HEADER",
+                  "value": "X-Forwarded-For"
+                },
+                {
+                  "name": "EMAIL_2FA_ENFORCE_ON_VERIFIED_INVITE",
+                  "value": "true"
+                },
+                {
+                  "name": "ENABLE_YUBICO",
+                  "value": "false"
+                },
+                {
+                  "name": "ENABLE_DUO",
+                  "value": "false"
+                },
+                {
+                  "name": "INVITATION_ORG_NAME",
+                  "value": "HellysVaultwarden"
+                },
+                {
+                  "name": "SIGNUPS_VERIFY",
+                  "value": "true"
+                },
+                {
                   "name": "SIGNUPS_ALLOWED",
                   "value": "false"
                 },
@@ -244,6 +268,10 @@
                 {
                   "name": "SMTP_HOST",
                   "value": "smtp.gmail.com"
+                },
+                {
+                  "name": "SMTP_FROM_NAME",
+                  "secretRef": "HellysVaultwarden"
                 },
                 {
                   "name": "SMTP_FROM",
