@@ -40,6 +40,12 @@
       "metadata": {
         "description": "Username of personal gmail account. Will also be used as adress from which mail will be sent"
       }
+    },
+    "customDomain": {
+      "type": "string",
+      "metadata": {
+        "description": "Url of the custom domain used, e.g. https://example.com"
+      }
     }
   },
   "resources": [
@@ -203,6 +209,10 @@
             {
               "name": "username",
               "value": "[parameters('userName')]"
+            },
+            {
+              "name": "customdomain",
+              "value": "[parameters('customDomain')]"
             }
           ],
           "activeRevisionsMode": "Single",
@@ -234,21 +244,21 @@
                   "secretRef": "fileshare-connectionstring"
                 },
                 {
+                  "name": "DOMAIN",
+                  "secretRef": "customdomain"
+                },                
+                {
+                  "name": "PASSWORD_HINTS_ALLOWED",
+                  "value": "false"
+                },
+                {
                   "name": "IP_HEADER",
                   "value": "X-Forwarded-For"
                 },
                 {
                   "name": "EMAIL_2FA_ENFORCE_ON_VERIFIED_INVITE",
                   "value": "true"
-                },
-                {
-                  "name": "ENABLE_YUBICO",
-                  "value": "false"
-                },
-                {
-                  "name": "ENABLE_DUO",
-                  "value": "false"
-                },
+                },                
                 {
                   "name": "INVITATION_ORG_NAME",
                   "value": "HellysVaultwarden"
