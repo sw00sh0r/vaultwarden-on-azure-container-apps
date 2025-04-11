@@ -39,7 +39,7 @@ openssl pkcs12 -inkey cloudflare.key -in cloudflare.pem -export -out cloudflare.
 
 #### DNS Records
 
-In order to setup the correct DNS records go to `DNS -> Records` and add the two records requird by Azure.
+In order to setup the correct DNS records go to `DNS -> Records` and add the two records requird by [Azure](#configuration-azure).
 
 #### Web Application Firewall (WAF)
 
