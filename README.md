@@ -86,7 +86,7 @@ This solution uses a `dynamic DNS` from [DuckDNS](https://www.duckdns.org/). To 
 You need your [Global API Key](https://dash.cloudflare.com/profile/api-tokens) from your Cloudflare account in order to make the update script for the `WAF rule` work.
 
 1. Copy the `update-cloudflare-firewall-rule.sh` to your `Raspberry PI`
-2. Make sure the current user can executed the script
+2. Make sure the current user can execute the script
 3. Fill in the `placeholders` in the script. Most of the can be found in Cloudflare Dashboard under `Security -> WAF -> Custom rules -> Geoblocking all foreign countries`, scroll down and expand `Save with API call`
 4. Make sure that your `dynamic dns` in replaced with `exampledomain.duckdns.org` in Line 1 of the script
 5. Add the script to crontab, optionally add a timestamp in the first line of the script for the log `date +%d-%m-%y/%H:%M:%S`
